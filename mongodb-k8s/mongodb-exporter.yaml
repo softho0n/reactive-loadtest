@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mongodb-exporter
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mongodb-exporter
+  template:
+    metadata:
+      labels:
+        app: mongodb-exporter
+    spec:
+      containers:
+        - name: mongodb-exporter
+          image: bitnami/mongodb-exporter:latest # Bitnami의 MongoDB Exporter 사용
+          ports:
+            - containerPort: 9216
+          env:
+            - name: MONGODB_URI
+              value: "mongodb://admin:password@mongodb-service:27017/admin"
+            - name: MONGODB_EXPORTER_MONGODB_URI
+              value: "mongodb://admin:password@mongodb-service:27017/admin"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongodb-exporter-service
+spec:
+  selector:
+    app: mongodb-exporter
+  ports:
+    - protocol: TCP
+      port: 9216
+      targetPort: 9216
+  type: ClusterIP
